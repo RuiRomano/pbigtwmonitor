@@ -34,7 +34,11 @@ try {
     
     New-Item -ItemType Directory -Path $outputPath -ErrorAction SilentlyContinue | Out-Null
 
-    ConvertTo-Json $currentGateway | Out-File "$outputPath\GatewayInfo.json" -force -Encoding utf8
+    $gatewayMetadataFilePath = "$outputPath\GatewayMetadata.json"
+
+    ConvertTo-Json $currentGateway | Out-File $gatewayMetadataFilePath -force -Encoding utf8
+
+    Add-FileToBlobStorage -storageAccountConnStr $config.StorageAccountConnStr -storageContainerName $config.StorageAccountContainerName -storageRootPath $config.StorageAccountContainerRootPath -filePath $gatewayMetadataFilePath -rootFolderPath $config.OutputPath            
 
     if (!$stateFilePath) {
         $stateFilePath = "$($config.OutputPath)\state.json"
@@ -61,7 +65,7 @@ try {
 
     foreach ($path in $config.GatewayLogsPath) {
 
-        $logFiles = @(Get-ChildItem -File -Path "$path\*.log" -ErrorAction SilentlyContinue)
+        $logFiles = @(Get-ChildItem -File -Path "$path\*.log" -Recurse -ErrorAction SilentlyContinue)
 
         Write-Host "Gateway log count: $($logFiles.Count)"
 
@@ -73,10 +77,12 @@ try {
             
             Write-Host "Copying file: '$($logFile.Name)'"
 
-            Copy-Item -Path $logFile.FullName -Destination $outputPath -Force
-        }
+            $fileOutputPath = "$outputPath\$($logFile.Name)"
 
-        Add-FolderToBlobStorage -storageAccountConnStr $config.StorageAccountConnStr -storageContainerName $config.StorageAccountContainerName -storageRootPath $config.StorageAccountContainerRootPath -folderPath $outputPath -rootFolderPath $config.OutputPath
+            Copy-Item -Path $logFile.FullName -Destination $fileOutputPath -Force
+
+            Add-FileToBlobStorage -storageAccountConnStr $config.StorageAccountConnStr -storageContainerName $config.StorageAccountContainerName -storageRootPath $config.StorageAccountContainerRootPath -filePath $fileOutputPath -rootFolderPath $config.OutputPath            
+        }
     }
     
     # Save state 

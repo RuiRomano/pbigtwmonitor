@@ -12,7 +12,7 @@ try {
 
     Write-Host "Find gateway info..."
 
-    $gateways = @(Invoke-PowerBIRestMethod -url "gateways" -method Get | ConvertFrom-Json -Depth 5 | Select -ExpandProperty value)
+    $gateways = @(Invoke-PowerBIRestMethod -url "gateways" -method Get | ConvertFrom-Json | Select -ExpandProperty value)
 
     $thisComputer = $env:COMPUTERNAME
 
@@ -20,7 +20,7 @@ try {
 
     if (!$currentGateway)
     {
-        throw "Cannot find any gateway for '$thisComputer'. Make sure the ServicePrincipal is a gateway admin on: https://admin.powerplatform.microsoft.com/ext/DataGateways"
+        throw "Cannot find any gateway for server '$thisComputer'. Make sure the ServicePrincipal is a gateway admin on: https://admin.powerplatform.microsoft.com/ext/DataGateways"
     }
 
     $gatewayId = $currentGateway.id
@@ -62,6 +62,11 @@ try {
     }
 
     Write-Host "LastRun: '$lastRunDate'"
+
+    if (!(Test-Path $config.GatewayLogsPath))
+    {
+        throw "Cannot find gateway logs path '$($config.GatewayLogsPath)' - https://docs.microsoft.com/en-us/data-integration/gateway/service-gateway-log-files"
+    }
 
     foreach ($path in $config.GatewayLogsPath) {
 

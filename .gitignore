@@ -12,10 +12,10 @@ GraphAppSecret.txt
 ServicePrincipal.json
 
 /Share
-/Config*.json
+
+/Config - *.json
 
 *.pbix
-/Config*.json
 /debug.log
 
 */data/*

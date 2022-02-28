@@ -12,6 +12,8 @@ $ErrorActionPreference = "Stop"
 
 $currentPath = (Split-Path $MyInvocation.MyCommand.Definition -Parent)
 
+Set-Location $currentPath
+
 Import-Module "$currentPath\Utils.psm1" -Force
 
 Write-Host "Current Path: $currentPath"

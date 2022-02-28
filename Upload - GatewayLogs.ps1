@@ -4,6 +4,23 @@ param(
     [string]$stateFilePath    
 )
 
+function ProcessLogFiles ($logFiles, $outputPath)
+{
+    Write-Host "Log count modified since last run: $($logFiles.Count)"
+
+    foreach ($logFile in $logFiles) {
+        
+        Write-Host "Copying file: '$($logFile.Name)'"
+
+        $fileOutputPath = "$outputPath\$($logFile.Name)"
+
+        Copy-Item -Path $logFile.FullName -Destination $fileOutputPath -Force
+
+        Add-FileToBlobStorage -storageAccountConnStr $config.StorageAccountConnStr -storageContainerName $config.StorageAccountContainerName -storageRootPath $config.StorageAccountContainerRootPath -filePath $fileOutputPath -rootFolderPath $config.OutputPath            
+    }
+}
+
+
 try {
     Write-Host "Upload - GatewayLogs Start"
 
@@ -24,17 +41,22 @@ try {
     }
 
     $gatewayId = $currentGateway.id
-
-    $rootOutputPath = "$($config.OutputPath)\logs"
-
+   
     $runDate = [datetime]::UtcNow
     $lastRunDate = $null
 
-    $outputPath = ("$rootOutputPath\{0:yyyy}\{0:MM}\{0:dd}\$gatewayId" -f $runDate)  
-    
-    New-Item -ItemType Directory -Path $outputPath -ErrorAction SilentlyContinue | Out-Null
+    $outputPathLogs = ("$($config.OutputPath)\{1:gatewayid}\\logs\\{0:yyyy}\\{0:MM}\\{0:dd}" -f $runDate, $gatewayId)  
 
-    $gatewayMetadataFilePath = "$outputPath\GatewayMetadata.json"
+    $outputPathMetadata = ("$($config.OutputPath)\{0:gatewayid}\\metadata" -f $gatewayId)  
+
+    $outputPathReports = ("$($config.OutputPath)\{0:gatewayid}\\reports" -f $gatewayId)
+    
+    # Ensure folders
+    @($outputPathLogs, $outputPathMetadata, $outputPathReports) |% {
+        New-Item -ItemType Directory -Path $_ -ErrorAction SilentlyContinue | Out-Null
+    }
+
+    $gatewayMetadataFilePath = "$outputPathMetadata\GatewayMetadata.json"
 
     ConvertTo-Json $currentGateway | Out-File $gatewayMetadataFilePath -force -Encoding utf8
 
@@ -70,24 +92,21 @@ try {
 
     foreach ($path in $config.GatewayLogsPath) {
 
-        $logFiles = @(Get-ChildItem -File -Path "$path\*.log" -Recurse -ErrorAction SilentlyContinue)
+        $logFiles = @(Get-ChildItem -File -Path "$path\*.log" -ErrorAction SilentlyContinue)
 
         Write-Host "Gateway log count: $($logFiles.Count)"
 
+        $logFiles = @($logFiles | ? { $_.LastWriteTimeUtc -gt $lastRunDate -or $lastRunDate -eq $null })         
+
+        ProcessLogFiles -logFiles $logFiles -outputPath $outputPathLogs
+
+        $logFiles = @(Get-ChildItem -File -Path "$path\report\*.log" -ErrorAction SilentlyContinue)
+
+        Write-Host "Gateway Report log count: $($logFiles.Count)"
+
         $logFiles = @($logFiles | ? { $_.LastWriteTimeUtc -gt $lastRunDate -or $lastRunDate -eq $null }) 
 
-        Write-Host "Gateway log count modified since last run: $($logFiles.Count)"
-
-        foreach ($logFile in $logFiles) {
-            
-            Write-Host "Copying file: '$($logFile.Name)'"
-
-            $fileOutputPath = "$outputPath\$($logFile.Name)"
-
-            Copy-Item -Path $logFile.FullName -Destination $fileOutputPath -Force
-
-            Add-FileToBlobStorage -storageAccountConnStr $config.StorageAccountConnStr -storageContainerName $config.StorageAccountContainerName -storageRootPath $config.StorageAccountContainerRootPath -filePath $fileOutputPath -rootFolderPath $config.OutputPath            
-        }
+        ProcessLogFiles -logFiles $logFiles -outputPath $outputPathReports     
     }
     
     # Save state 

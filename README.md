@@ -30,8 +30,10 @@ As a Power BI Administrator go to [Power Platform Admin Portal] (https://admin.p
 ## Change Config.Json
 
 - Change the 'GatewayLogsPath' to the path where the gateway files are stored - [more info](https://docs.microsoft.com/en-us/data-integration/gateway/service-gateway-log-files)
-- Configure the service principal metatada: Id, Secret, Tenant
-- Storage Account connection string
+- Configure ServicePrincipal metatada: Id, Secret, Tenant
+- StorageAccountConnStr
 - Optional - Output path
 
+## Schedule Task
 
+Configure a Schedule Task to run the script [Run.ps1](./Run.ps1) every hour

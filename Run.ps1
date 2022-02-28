@@ -1,7 +1,7 @@
-#Requires -Modules Az.Storage, MicrosoftPowerBIMgmt.Profile
+#Requires -Modules MicrosoftPowerBIMgmt.Profile, Az.Storage
 
 param(
-    [string]$configFilePath = ".\Config.json"
+    [string]$configFilePath = ".\Config - RRMSFT.json"
     ,
     [array]$scriptsToRun = @(
         ".\Upload - GatewayLogs.ps1"

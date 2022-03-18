@@ -28,9 +28,7 @@ function Add-FolderToBlobStorage {
     }
     
     if ($ensureContainer) {
-        Write-Host "Ensuring container '$storageContainerName'"
-
-        New-AzStorageContainer -Context $ctx -Name $storageContainerName -Permission Off -ErrorAction SilentlyContinue | Out-Null
+         New-AzStorageContainer -Context $ctx -Name $storageContainerName -Permission Off -ErrorAction SilentlyContinue | Out-Null
     }
 
     $files = @(Get-ChildItem -Path $folderPath -Filter *.* -Recurse -File)

@@ -31,3 +31,4 @@ local.settings*
 /Dataflow
 
 /DatasetStats
+GatewayInfo.json

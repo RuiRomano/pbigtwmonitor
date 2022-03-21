@@ -1,7 +1,7 @@
 param(               
     [psobject]$config
     ,
-    [string]$stateFilePath    
+    [string]$stateFilePath     
 )
 
 function ProcessLogFiles ($logFiles, $outputPath)
@@ -27,20 +27,40 @@ try {
     $stopwatch = [System.Diagnostics.Stopwatch]::new()
     $stopwatch.Start()   
 
-    Write-Host "Find gateway info..."
+    $gatewayPropertiesFilePath = ".\GatewayProperties.txt"
 
-    $gateways = @(Invoke-PowerBIRestMethod -url "gateways" -method Get | ConvertFrom-Json | Select -ExpandProperty value)
-
-    $thisComputer = $env:COMPUTERNAME
-
-    $currentGateway = @($gateways |? { ($_.gatewayAnnotation | ConvertFrom-Json).gatewayMachine -ieq $thisComputer })[0]
-
-    if (!$currentGateway)
+    if (!(Test-Path $gatewayPropertiesFilePath))
     {
-        throw "Cannot find any gateway for server '$thisComputer'. Make sure the ServicePrincipal is a gateway admin on: https://admin.powerplatform.microsoft.com/ext/DataGateways"
+        Write-Host "Discover gateway properties..."
+
+        $credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $config.ServicePrincipal.AppId, ($config.ServicePrincipal.AppSecret | ConvertTo-SecureString -AsPlainText -Force)
+
+        Connect-PowerBIServiceAccount -ServicePrincipal -Tenant $config.ServicePrincipal.TenantId -Credential $credential -Environment $config.ServicePrincipal.Environment
+
+        $gateways = @(Invoke-PowerBIRestMethod -url "gateways" -method Get | ConvertFrom-Json | Select -ExpandProperty value)
+
+        $thisComputer = $env:COMPUTERNAME
+
+        $currentGateway = @($gateways |? { ($_.gatewayAnnotation | ConvertFrom-Json).gatewayMachine -ieq $thisComputer })[0]
+
+        if (!$currentGateway)
+        {
+            throw "Cannot find any gateway for server '$thisComputer'. Make sure the ServicePrincipal is a gateway admin on: https://admin.powerplatform.microsoft.com/ext/DataGateways"
+        }     
+        
+        $gatewayProperties = @{
+            GatewayObjectId = $currentGateway.id
+            ;
+            GatewayName = $currentGateway.name
+        }
+    }
+    else {
+        Write-Host "GatewayProperties is present, will skip the API connection"
+
+        $gatewayProperties = Get-Content $gatewayPropertiesFilePath | ConvertFrom-Json
     }
 
-    $gatewayId = $currentGateway.id
+    $gatewayId = $gatewayProperties.GatewayObjectId
    
     $runDate = [datetime]::UtcNow
     $lastRunDate = $null
@@ -56,9 +76,9 @@ try {
         New-Item -ItemType Directory -Path $_ -ErrorAction SilentlyContinue | Out-Null
     }
 
-    $gatewayMetadataFilePath = "$outputPathMetadata\GatewayMetadata.json"
+    $gatewayMetadataFilePath = "$outputPathMetadata\GatewayProperties.json"
 
-    ConvertTo-Json $currentGateway | Out-File $gatewayMetadataFilePath -force -Encoding utf8
+    ConvertTo-Json $gatewayProperties | Out-File $gatewayMetadataFilePath -force -Encoding utf8
 
     Add-FileToBlobStorage -storageAccountConnStr $config.StorageAccountConnStr -storageContainerName $config.StorageAccountContainerName -storageRootPath $config.StorageAccountContainerRootPath -filePath $gatewayMetadataFilePath -rootFolderPath $config.OutputPath            
 

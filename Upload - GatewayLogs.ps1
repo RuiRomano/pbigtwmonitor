@@ -16,7 +16,13 @@ function ProcessLogFiles ($logFiles, $outputPath)
 
         Copy-Item -Path $logFile.FullName -Destination $fileOutputPath -Force
 
+        Write-Host "Sync '$($logFile.Name)' to BlobStorage"
+
         Add-FileToBlobStorage -storageAccountConnStr $config.StorageAccountConnStr -storageContainerName $config.StorageAccountContainerName -storageRootPath $config.StorageAccountContainerRootPath -filePath $fileOutputPath -rootFolderPath $config.OutputPath            
+
+        Write-Host "Deleting local file: '$($logFile.Name)'"
+
+        Remove-Item $fileOutputPath -Force
     }
 }
 

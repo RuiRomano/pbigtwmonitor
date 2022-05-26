@@ -1,3 +1,6 @@
+#requires -Modules Az.Storage
+#requires -Modules MicrosoftPowerBIMgmt.Profile
+
 param(
     [string]$configFilePath = ".\Config - RRMSFT.json"
     ,
@@ -12,9 +15,6 @@ $currentPath = (Split-Path $MyInvocation.MyCommand.Definition -Parent)
 
 Set-Location $currentPath
 
-Import-Module Az.Accounts -MinimumVersion 2.7.2 -Force
-Import-Module Az.Storage -MinimumVersion 4.2.0 -Force
-Import-Module MicrosoftPowerBIMgmt.Profile -MinimumVersion 1.2.1077 -Force
 Import-Module "$currentPath\Utils.psm1" -Force
 
 Write-Host "Current Path: $currentPath"

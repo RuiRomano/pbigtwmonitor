@@ -8,7 +8,7 @@
   
 ## Save GatewayProperties.txt
 
-Execute an manual [Export Logs](https://docs.microsoft.com/en-us/data-integration/gateway/service-gateway-tshoot#collect-logs-from-the-on-premises-data-gateway-app) on the gateway and copy the the 'GatewayProperties.txt' file to the root folder of this solution
+Execute an manual [Export Logs](https://docs.microsoft.com/en-us/data-integration/gateway/service-gateway-tshoot#collect-logs-from-the-on-premises-data-gateway-app) on the gateway and copy the the 'GatewayProperties.txt' file to the root folder of the scripts
 
 # Schedule Task
 

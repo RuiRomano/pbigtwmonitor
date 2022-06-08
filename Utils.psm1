@@ -105,11 +105,12 @@ function Add-FileToBlobStorageInternal {
 
         $filePath = $filePath.ToLower()
 
+        $fileName = (Split-Path $filePath -Leaf)
+
         if ($rootFolderPath) {
             $rootFolderPath = Resolve-Path $rootFolderPath
             $rootFolderPath = $rootFolderPath.ToLower()
-
-            $fileName = (Split-Path $filePath -Leaf)        
+                
             $parentFolder = (Split-Path $filePath -Parent)
             $relativeFolder = $parentFolder.Replace($rootFolderPath, "").Replace("\", "/").TrimStart("/").Trim();
         }

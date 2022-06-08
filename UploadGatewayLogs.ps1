@@ -4,13 +4,13 @@ param(
     [string]$stateFilePath     
 )
 
-function ProcessLogFiles ($logFiles, $outputPath, $executionDate)
+function ProcessLogFiles ($logFiles, $storagePath, $executionDate, $tempPath)
 {
-    Write-Host "Log count modified since last run: $($logFiles.Count)"
+    Write-Host "Files modified since last run: $($logFiles.Count)"
 
     foreach ($logFile in $logFiles) {
                 
-        $outputPathTemp = $outputPath
+        $storagePathTemp = $storagePath
 
         # Try to parse the date out of the file name
 
@@ -31,27 +31,40 @@ function ProcessLogFiles ($logFiles, $outputPath, $executionDate)
 
             if ($fileDate)
             {
-                $outputPathTemp = Join-Path $outputPath ("{0:yyyy}\\{0:MM}\\{0:dd}" -f $fileDate)
+                $storagePathTemp = ("$storagePath/{0:yyyy}/{0:MM}/{0:dd}" -f $fileDate)
             }
         }
+        
+        if ($tempPath)
+        {
+            # Local copy the file, because it could be blocked by Gateway
 
-        Write-Host "Copying file: '$($logFile.FullName)' to '$outputPathTemp'"
+            Write-Host "Copying file: '$($logFile.FullName)' to '$tempPath'"
 
-        $fileOutputPath = "$outputPathTemp\$($logFile.Name)"        
+            $fileOutputPath = "$tempPath\$($logFile.Name)"                
 
-        # Ensure folder
+            New-Item -ItemType Directory -Path (Split-Path $fileOutputPath -Parent) -ErrorAction SilentlyContinue | Out-Null
 
-        New-Item -ItemType Directory -Path (Split-Path $fileOutputPath -Parent) -ErrorAction SilentlyContinue | Out-Null
+            Copy-Item -Path $logFile.FullName -Destination $fileOutputPath -Force
+        }
+        else{
+            $fileOutputPath = $logFile.FullName
+        }
 
-        Copy-Item -Path $logFile.FullName -Destination $fileOutputPath -Force
+        Write-Host "Sync '$fileOutputPath' to BlobStorage"
 
-        Write-Host "Sync '$($logFile.Name)' to BlobStorage"
+        # Send to Storage
 
-        Add-FileToBlobStorage -storageAccountConnStr $config.StorageAccountConnStr -storageContainerName $config.StorageAccountContainerName -storageRootPath $config.StorageAccountContainerRootPath -filePath $fileOutputPath -rootFolderPath $config.OutputPath            
+        Add-FileToBlobStorage -storageRootPath $storagePathTemp -filePath $fileOutputPath -storageAccountConnStr $config.StorageAccountConnStr -storageContainerName $config.StorageAccountContainerName        
 
-        Write-Host "Deleting local file copy: '$($logFile.Name)'"
+        if ($tempPath)
+        {
+            Write-Host "Deleting local file copy: '$fileOutputPath'"
 
-        Remove-Item $fileOutputPath -Force
+            # Remove the local copy 
+            
+            Remove-Item $fileOutputPath -Force
+        }
     }
 }
 
@@ -100,27 +113,30 @@ try {
     $gatewayId = $gatewayProperties.GatewayObjectId
    
     $runDate = [datetime]::UtcNow
+
     $lastRunDate = $null
 
-    $outputPathLogs = ("$($config.OutputPath)\{1:gatewayid}\\logs" -f $runDate, $gatewayId)  
+    $localOutputPath  = $config.OutputPath
 
-    $outputPathMetadata = ("$($config.OutputPath)\{0:gatewayid}\\metadata" -f $gatewayId)  
+    $outputPathLogs = ("$($config.StorageAccountContainerRootPath)/{0:gatewayid}/logs" -f  $gatewayId)  
 
-    $outputPathReports = ("$($config.OutputPath)\{0:gatewayid}\\reports" -f $gatewayId)
+    $outputPathMetadata = ("$($config.StorageAccountContainerRootPath)/{0:gatewayid}/metadata" -f $gatewayId)  
+
+    $outputPathReports = ("$($config.StorageAccountContainerRootPath)/{0:gatewayid}/reports" -f $gatewayId)
     
     # Ensure folders
     @($outputPathLogs, $outputPathMetadata, $outputPathReports) |% {
         New-Item -ItemType Directory -Path $_ -ErrorAction SilentlyContinue | Out-Null
     }
 
-    $gatewayMetadataFilePath = "$outputPathMetadata\GatewayProperties.json"
+    $gatewayMetadataFilePath = "$localOutputPath\GatewayProperties.json"
 
     ConvertTo-Json $gatewayProperties | Out-File $gatewayMetadataFilePath -force -Encoding utf8
 
-    Add-FileToBlobStorage -storageAccountConnStr $config.StorageAccountConnStr -storageContainerName $config.StorageAccountContainerName -storageRootPath $config.StorageAccountContainerRootPath -filePath $gatewayMetadataFilePath -rootFolderPath $config.OutputPath            
+    ProcessLogFiles -logFiles (Get-ChildItem $gatewayMetadataFilePath) -storagePath $outputPathMetadata   
 
     if (!$stateFilePath) {
-        $stateFilePath = "$($config.OutputPath)\state.json"
+        $stateFilePath = ".\state.json"
     }
 
     if (Test-Path $stateFilePath) {
@@ -155,7 +171,7 @@ try {
 
         $logFiles = @($logFiles | ? { $_.LastWriteTimeUtc -gt $lastRunDate -or $lastRunDate -eq $null })         
 
-        ProcessLogFiles -logFiles $logFiles -outputPath $outputPathLogs -executionDate $runDate
+        ProcessLogFiles -logFiles $logFiles -storagePath $outputPathLogs -executionDate $runDate -tempPath $localOutputPath
 
         $logFiles = @(Get-ChildItem -File -Path "$path\report\*.log" -ErrorAction SilentlyContinue)
 
@@ -163,7 +179,7 @@ try {
 
         $logFiles = @($logFiles | ? { $_.LastWriteTimeUtc -gt $lastRunDate -or $lastRunDate -eq $null }) 
 
-        ProcessLogFiles -logFiles $logFiles -outputPath $outputPathReports     
+        ProcessLogFiles -logFiles $logFiles -storagePath $outputPathReports -tempPath $localOutputPath    
 
         $logFiles = @(Get-ChildItem -File -Path "$path\*ConfigurationProperties.json" -ErrorAction SilentlyContinue)
 
@@ -171,7 +187,7 @@ try {
 
         $logFiles = @($logFiles | ? { $_.LastWriteTimeUtc -gt $lastRunDate -or $lastRunDate -eq $null }) 
 
-        ProcessLogFiles -logFiles $logFiles -outputPath $outputPathMetadata   
+        ProcessLogFiles -logFiles $logFiles -storagePath $outputPathMetadata -tempPath $localOutputPath 
     }
     
     # Save state 

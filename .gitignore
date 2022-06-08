@@ -11,6 +11,8 @@ GraphAppSecret.txt
 
 ServicePrincipal.json
 
+/backup
+
 /Share
 
 /Config - *.json
@@ -37,3 +39,6 @@ Logs.lnk
 Run-Local.ps1
 Diagrams.pptx
 ~$Diagrams.pptx
+Tools - GetGateways.ps1
+Tools - ListGateways.ps1
+state.json

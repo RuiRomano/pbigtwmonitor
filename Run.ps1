@@ -1,11 +1,10 @@
 #requires -Modules Az.Storage
-#requires -Modules MicrosoftPowerBIMgmt.Profile
 
 param(
-    [string]$configFilePath = ".\Config - RRMSFT.json"
+    [string]$configFilePath = ".\Config.json"
     ,
     [array]$scriptsToRun = @(
-        ".\Upload - GatewayLogs.ps1"
+        ".\UploadGatewayLogs.ps1"
     )
 )
 
@@ -22,6 +21,7 @@ Write-Host "Current Path: $currentPath"
 Write-Host "Config Path: $configFilePath"
 
 if (Test-Path $configFilePath) {
+
     $config = Get-Content $configFilePath | ConvertFrom-Json
 
     # Default Values
@@ -35,8 +35,6 @@ else {
 }
 
 try {
-
-    Write-Host "Connecting to PowerBI..."
 
     foreach ($scriptToRun in $scriptsToRun)
     {        

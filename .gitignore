@@ -34,3 +34,6 @@ local.settings*
 GatewayInfo.json
 GatewayProperties.txt
 Logs.lnk
+Run-Local.ps1
+Diagrams.pptx
+~$Diagrams.pptx

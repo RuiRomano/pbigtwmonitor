@@ -4,15 +4,44 @@ param(
     [string]$stateFilePath     
 )
 
-function ProcessLogFiles ($logFiles, $outputPath)
+function ProcessLogFiles ($logFiles, $outputPath, $executionDate)
 {
     Write-Host "Log count modified since last run: $($logFiles.Count)"
 
     foreach ($logFile in $logFiles) {
-        
-        Write-Host "Copying file: '$($logFile.Name)'"
+                
+        $outputPathTemp = $outputPath
 
-        $fileOutputPath = "$outputPath\$($logFile.Name)"
+        # Try to parse the date out of the file name
+
+        if ($executionDate)
+        {
+            $dateRegExMatches = ($logFile.Name | Select-String  -pattern ".+(\d{8}).\d+").Matches
+
+            if ($dateRegExMatches)
+            {
+                $fileDateStr = $dateRegExMatches.Groups[1].Value
+
+                $fileDate = [datetime]::ParseExact($fileDateStr, "yyyyMMdd", [Globalization.CultureInfo]::InvariantCulture)            
+            }
+            else
+            {
+                $fileDate = $executionDate            
+            }
+
+            if ($fileDate)
+            {
+                $outputPathTemp = Join-Path $outputPath ("{0:yyyy}\\{0:MM}\\{0:dd}" -f $fileDate)
+            }
+        }
+
+        Write-Host "Copying file: '$($logFile.FullName)' to '$outputPathTemp'"
+
+        $fileOutputPath = "$outputPathTemp\$($logFile.Name)"        
+
+        # Ensure folder
+
+        New-Item -ItemType Directory -Path (Split-Path $fileOutputPath -Parent) -ErrorAction SilentlyContinue | Out-Null
 
         Copy-Item -Path $logFile.FullName -Destination $fileOutputPath -Force
 
@@ -20,7 +49,7 @@ function ProcessLogFiles ($logFiles, $outputPath)
 
         Add-FileToBlobStorage -storageAccountConnStr $config.StorageAccountConnStr -storageContainerName $config.StorageAccountContainerName -storageRootPath $config.StorageAccountContainerRootPath -filePath $fileOutputPath -rootFolderPath $config.OutputPath            
 
-        Write-Host "Deleting local file: '$($logFile.Name)'"
+        Write-Host "Deleting local file copy: '$($logFile.Name)'"
 
         Remove-Item $fileOutputPath -Force
     }
@@ -37,6 +66,8 @@ try {
 
     if (!(Test-Path $gatewayPropertiesFilePath))
     {
+        Write-Warning "GatewayProperties.txt is not found on '$gatewayPropertiesFilePath', trying to solve the gateway name using the Power BI REST API's."
+
         Write-Host "Discover gateway properties..."
 
         $credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $config.ServicePrincipal.AppId, ($config.ServicePrincipal.AppSecret | ConvertTo-SecureString -AsPlainText -Force)
@@ -71,7 +102,7 @@ try {
     $runDate = [datetime]::UtcNow
     $lastRunDate = $null
 
-    $outputPathLogs = ("$($config.OutputPath)\{1:gatewayid}\\logs\\{0:yyyy}\\{0:MM}\\{0:dd}" -f $runDate, $gatewayId)  
+    $outputPathLogs = ("$($config.OutputPath)\{1:gatewayid}\\logs" -f $runDate, $gatewayId)  
 
     $outputPathMetadata = ("$($config.OutputPath)\{0:gatewayid}\\metadata" -f $gatewayId)  
 
@@ -124,7 +155,7 @@ try {
 
         $logFiles = @($logFiles | ? { $_.LastWriteTimeUtc -gt $lastRunDate -or $lastRunDate -eq $null })         
 
-        ProcessLogFiles -logFiles $logFiles -outputPath $outputPathLogs
+        ProcessLogFiles -logFiles $logFiles -outputPath $outputPathLogs -executionDate $runDate
 
         $logFiles = @(Get-ChildItem -File -Path "$path\report\*.log" -ErrorAction SilentlyContinue)
 
@@ -133,6 +164,14 @@ try {
         $logFiles = @($logFiles | ? { $_.LastWriteTimeUtc -gt $lastRunDate -or $lastRunDate -eq $null }) 
 
         ProcessLogFiles -logFiles $logFiles -outputPath $outputPathReports     
+
+        $logFiles = @(Get-ChildItem -File -Path "$path\*ConfigurationProperties.json" -ErrorAction SilentlyContinue)
+
+        Write-Host "Gateway Config file count: $($logFiles.Count)"
+
+        $logFiles = @($logFiles | ? { $_.LastWriteTimeUtc -gt $lastRunDate -or $lastRunDate -eq $null }) 
+
+        ProcessLogFiles -logFiles $logFiles -outputPath $outputPathMetadata   
     }
     
     # Save state 

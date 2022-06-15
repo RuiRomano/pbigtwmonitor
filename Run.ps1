@@ -1,4 +1,4 @@
-#requires -Modules Az.Storage
+#requires -Modules Az.Accounts, Az.Storage
 
 param(
     [string]$configFilePath = ".\Config.json"

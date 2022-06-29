@@ -125,7 +125,7 @@ try {
     $outputPathReports = ("$($config.StorageAccountContainerRootPath)/{0:gatewayid}/reports" -f $gatewayId)
     
     # Ensure folders
-    @($outputPathLogs, $outputPathMetadata, $outputPathReports) |% {
+    @($localOutputPath) |% {
         New-Item -ItemType Directory -Path $_ -ErrorAction SilentlyContinue | Out-Null
     }
 

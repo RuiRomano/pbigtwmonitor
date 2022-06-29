@@ -11,6 +11,24 @@ This project aim to help organizations with multiple gateway clusters centralize
 ## Requirements
 
 - Azure Data Lake Storage Gen2 with hierarchical namespace enabled
+- [PowerShell 7](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.2) with the following modules installed: [Az.Accounts](https://www.powershellgallery.com/packages/Az.Accounts), [Az.Storage](https://www.powershellgallery.com/packages/Az.Storage), [MicrosoftPowerBIMgmt](https://www.powershellgallery.com/packages/MicrosoftPowerBIMgmt)
+
+## Required PowerShell Modules
+
+On the gateway server you must ensure [PowerShell 7](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.2) and ensure the installation of all the required modules: 
+- [Az.Accounts](https://www.powershellgallery.com/packages/Az.Accounts)
+- [Az.Storage](https://www.powershellgallery.com/packages/Az.Storage)
+- [MicrosoftPowerBIMgmt](https://www.powershellgallery.com/packages/MicrosoftPowerBIMgmt)
+
+Open a PowerShell 7 window prompt and run the following install commands:
+
+```powershell
+Install-Module Az.Accounts -MinimumVersion "2.8.0" -verbose
+
+Install-Module Az.Storage -MinimumVersion "4.6.0" -verbose
+
+Install-Module MicrosoftPowerBIMgmt -MinimumVersion "1.2.1077" -verbose
+```
 
 ## Azure Data Lake Storage
 

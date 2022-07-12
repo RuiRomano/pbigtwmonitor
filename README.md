@@ -94,6 +94,10 @@ Configure a Windows Schedule Task to run the script [Run.ps1](./Run.ps1) every h
 
 ![image](./Images/PBI_QueriesPage.png)
 
+## Counters Page
+
+![image](./Images/PBI_Counters.png)
+
 ## Requests Page
 
 ![image](./Images/PBI_RequestsPage.png)

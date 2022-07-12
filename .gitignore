@@ -43,3 +43,5 @@ Tools - GetGateways.ps1
 Tools - ListGateways.ps1
 state.json
 Run.cmd
+
+On-premises data gateway.lnk

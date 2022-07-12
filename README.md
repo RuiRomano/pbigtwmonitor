@@ -6,6 +6,8 @@ This project aim to help organizations with multiple gateway clusters centralize
 
 ![image](./Images/Architecture.png)
 
+Blog Post: https://www.linkedin.com/pulse/power-bi-gateway-monitoring-troubleshooting-solution-rui-romano/ 
+
 # Setup
 
 ## Requirements

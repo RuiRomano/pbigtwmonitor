@@ -45,3 +45,5 @@ state.json
 Run.cmd
 
 On-premises data gateway.lnk
+
+/OtherGatewayLogs/*

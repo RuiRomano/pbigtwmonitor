@@ -74,66 +74,17 @@ try {
 
     $stopwatch = [System.Diagnostics.Stopwatch]::new()
     $stopwatch.Start()   
-
-    $gatewayPropertiesFilePath = ".\GatewayProperties.txt"
-
-    if (!(Test-Path $gatewayPropertiesFilePath))
-    {
-        Write-Warning "GatewayProperties.txt is not found on '$gatewayPropertiesFilePath', trying to solve the gateway name using the Power BI REST API's."
-
-        Write-Host "Discover gateway properties..."
-
-        $credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $config.ServicePrincipal.AppId, ($config.ServicePrincipal.AppSecret | ConvertTo-SecureString -AsPlainText -Force)
-
-        Connect-PowerBIServiceAccount -ServicePrincipal -Tenant $config.ServicePrincipal.TenantId -Credential $credential -Environment $config.ServicePrincipal.Environment
-
-        $gateways = @(Invoke-PowerBIRestMethod -url "gateways" -method Get | ConvertFrom-Json | Select -ExpandProperty value)
-
-        $thisComputer = $env:COMPUTERNAME
-
-        $currentGateway = @($gateways |? { ($_.gatewayAnnotation | ConvertFrom-Json).gatewayMachine -ieq $thisComputer })[0]
-
-        if (!$currentGateway)
-        {
-            throw "Cannot find any gateway for server '$thisComputer'. Make sure the ServicePrincipal is a gateway admin on: https://admin.powerplatform.microsoft.com/ext/DataGateways"
-        }     
-        
-        $gatewayProperties = @{
-            GatewayObjectId = $currentGateway.id
-            ;
-            GatewayName = $currentGateway.name
-        }
-    }
-    else {
-        Write-Host "GatewayProperties is present, will skip the API connection"
-
-        $gatewayProperties = Get-Content $gatewayPropertiesFilePath | ConvertFrom-Json
-    }
-
-    $gatewayId = $gatewayProperties.GatewayObjectId
    
     $runDate = [datetime]::UtcNow
 
     $lastRunDate = $null
 
     $localOutputPath  = $config.OutputPath
-
-    $outputPathLogs = ("$($config.StorageAccountContainerRootPath)/{0:gatewayid}/logs" -f  $gatewayId)  
-
-    $outputPathMetadata = ("$($config.StorageAccountContainerRootPath)/{0:gatewayid}/metadata" -f $gatewayId)  
-
-    $outputPathReports = ("$($config.StorageAccountContainerRootPath)/{0:gatewayid}/reports" -f $gatewayId)
     
     # Ensure folders
     @($localOutputPath) |% {
         New-Item -ItemType Directory -Path $_ -ErrorAction SilentlyContinue | Out-Null
     }
-
-    $gatewayMetadataFilePath = "$localOutputPath\GatewayProperties.json"
-
-    ConvertTo-Json $gatewayProperties | Out-File $gatewayMetadataFilePath -force -Encoding utf8
-
-    ProcessLogFiles -logFiles (Get-ChildItem $gatewayMetadataFilePath) -storagePath $outputPathMetadata   
 
     if (!$stateFilePath) {
         $stateFilePath = ".\state.json"
@@ -163,7 +114,54 @@ try {
         throw "Cannot find gateway logs path '$($config.GatewayLogsPath)' - https://docs.microsoft.com/en-us/data-integration/gateway/service-gateway-log-files"
     }
 
-    foreach ($path in $config.GatewayLogsPath) {
+    foreach ($obj in $config.GatewayLogsPath) {
+
+        if ($obj -is [PSCustomObject])
+        {
+            $path = $obj.Path
+
+            $gatewayProperties = @{
+                
+                GatewayObjectId = $obj.GatewayId
+                ;
+                GatewayName = $obj.GatewayName
+            }            
+        }
+        else {
+            $path = $obj
+
+            $reportFile = Get-ChildItem -path $path -Recurse  |? {$_.Name -ilike "SystemCounterAggregationReport_*"} | Select -first 1
+
+            if (!$reportFile)
+            {
+                throw "Cannot find a Gateway report file 'SystemCounterAggregationReport_*' to infer the GatewayId, please configure the config.json to configure the GatewayId"
+            }
+
+            $gatewayIdFromCSV = Get-Content -path $reportFile.FullName -First 2 | ConvertFrom-Csv | Select -ExpandProperty GatewayObjectId
+
+            $gatewayProperties = @{
+                
+                GatewayObjectId = $gatewayIdFromCSV             
+            }
+        }
+
+        $gatewayId = $gatewayProperties.GatewayObjectId
+
+        $outputPathLogs = ("$($config.StorageAccountContainerRootPath)/{0:gatewayid}/logs" -f  $gatewayId)  
+
+        $outputPathMetadata = ("$($config.StorageAccountContainerRootPath)/{0:gatewayid}/metadata" -f $gatewayId)  
+    
+        $outputPathReports = ("$($config.StorageAccountContainerRootPath)/{0:gatewayid}/reports" -f $gatewayId)
+
+        # GatewayProperties json file 
+
+        $gatewayMetadataFilePath = "$localOutputPath\GatewayProperties.json"
+
+        ConvertTo-Json $gatewayProperties | Out-File $gatewayMetadataFilePath -force -Encoding utf8
+
+        ProcessLogFiles -logFiles (Get-ChildItem $gatewayMetadataFilePath) -storagePath $outputPathMetadata   
+        
+        # Gateway Logs
 
         $logFiles = @(Get-ChildItem -File -Path "$path\*.log" -ErrorAction SilentlyContinue)
 
@@ -173,6 +171,8 @@ try {
 
         ProcessLogFiles -logFiles $logFiles -storagePath $outputPathLogs -executionDate $runDate -tempPath $localOutputPath
 
+        # Gateway Reports
+
         $logFiles = @(Get-ChildItem -File -Path "$path\report\*.log" -ErrorAction SilentlyContinue)
 
         Write-Host "Gateway Report log count: $($logFiles.Count)"
@@ -180,6 +180,8 @@ try {
         $logFiles = @($logFiles | ? { $_.LastWriteTimeUtc -gt $lastRunDate -or $lastRunDate -eq $null }) 
 
         ProcessLogFiles -logFiles $logFiles -storagePath $outputPathReports -tempPath $localOutputPath    
+
+        # Gateway Config Properties
 
         $logFiles = @(Get-ChildItem -File -Path "$path\*ConfigurationProperties.json" -ErrorAction SilentlyContinue)
 

@@ -44,14 +44,6 @@ Dont forget to enable [Hierarchical Namespace](https://docs.microsoft.com/en-us/
 
 On each Gateway Server you should clone/copy this repo powershell scripts into a local folder (ex: c:\PBIGTWMonitor)
 
-Open the "On-Premises data Gateway App", go to Diagnostics -> Export Logs:
-
-![image](./Images/Setup_GatewayExportLogs.png)
-
-Copy the file "GatewayProperties.txt" to the scripts folder:
-
-![image](./Images/Setup_GatewayProperties.png)
-
 ## Change Config.Json
 
 Open the [Configuration file](.\Config.json) and configure the following settings:
@@ -64,7 +56,13 @@ Open the [Configuration file](.\Config.json) and configure the following setting
 
 - GatewayLogsPath
   
-   Confirm if the 'GatewayLogsPath' point to the correct path of the gateway logs - [more info](https://docs.microsoft.com/en-us/data-integration/gateway/service-gateway-log-files)
+  Location of the Gateway logs & reports files.
+
+  Confirm if the 'GatewayLogsPath' point to the correct path of the gateway logs - [more info](https://docs.microsoft.com/en-us/data-integration/gateway/service-gateway-log-files)
+
+  The GatewayId is discovered automatically by looking into the first lines of the gateway report file 'SystemCounterAggregationReport*.log' but you can override this by specifying the GatewayId & GatewayName on the configuration file:
+
+  ![image](./Images/ConfigFile_PathProperty.png)
 
 - OutputPath
 

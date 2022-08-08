@@ -84,6 +84,8 @@ Configure a Windows Schedule Task to run the script [Run.ps1](./Run.ps1) every h
 
 # Power BI Template
 
+Theme Background Images here: https://alluringbi.com/gallery/
+
 ## Logs Page
 
 ![image](./Images/PBI_LogPage.png)

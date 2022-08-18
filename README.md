@@ -84,7 +84,19 @@ Configure a Windows Schedule Task to run the script [Run.ps1](./Run.ps1) every h
 
 # Power BI Template
 
-Theme Background Images here: https://alluringbi.com/gallery/
+## Template Parameters
+
+After opening the Power BI Template file (.pbit) the following parameter window will popup:
+
+![image](./Images/PBI_TemplateParams.png)
+
+| Parameter      | Description
+| ----------- | -------- 
+| DataLocation      | URL Path to the root folder on the Storage Account, ex: https://storage.dfs.core.windows.net/pbigatewaymonitor/raw
+| NumberDays | Filter to the log files to be fetched, if '10' Power BI will read only the latest 10 days of logs
+| MaxLogTextLength | Max size of text column of logs. Default: 1000
+| LogFilters | Comma separated file names of log files to be fetched. Default: "gatewayerrors,gatewayinfo" If 'None' log files will be excluded 
+| GatewayFilters | Comma separated gateway id's. Default: All Gateways
 
 ## Logs Page
 
@@ -105,3 +117,6 @@ Theme Background Images here: https://alluringbi.com/gallery/
 ## Mashups Profiles Page
 
 ![image](./Images/PBI_MashupProfiles.png)
+
+## Theme
+Theme Background Images here: https://alluringbi.com/gallery/

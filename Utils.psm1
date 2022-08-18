@@ -76,9 +76,7 @@ function Add-FileToBlobStorage {
         $ctx = New-AzStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $storageAccountKey
     }
     
-    if ($ensureContainer) {
-        Write-Host "Ensuring container '$storageContainerName'"
-        
+    if ($ensureContainer) {                
         New-AzStorageContainer -Context $ctx -Name $storageContainerName -Permission Off -ErrorAction SilentlyContinue | Out-Null
     }
     

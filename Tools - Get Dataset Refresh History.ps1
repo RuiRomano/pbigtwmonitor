@@ -1,9 +1,9 @@
 ﻿#Requires -Modules @{ ModuleName="MicrosoftPowerBIMgmt"; ModuleVersion="1.2.1026" }
 
 param(
-    $workspaceId = "7331d174-e08f-4802-acba-898b8cecbc75"
+    $workspaceId = "ff9f6b54-83e8-4aa5-901b-a7675e001c77"
     ,
-    $datasetId = "ecb5768c-3057-433a-91c0-c56bece634ae"
+    $datasetId = "4aee5203-4d36-4b2e-87b4-904a7bd38016"
 )
 
 $ErrorActionPreference = "Stop"

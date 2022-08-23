@@ -15,14 +15,24 @@ Blog Post: https://www.linkedin.com/pulse/power-bi-gateway-monitoring-troublesho
 - Azure Data Lake Storage Gen2 with hierarchical namespace enabled
 - [PowerShell 7](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.2) with the following modules installed: [Az.Accounts](https://www.powershellgallery.com/packages/Az.Accounts), [Az.Storage](https://www.powershellgallery.com/packages/Az.Storage), [MicrosoftPowerBIMgmt](https://www.powershellgallery.com/packages/MicrosoftPowerBIMgmt)
 
-## Required PowerShell Modules
+### Azure Data Lake Storage
 
-On the gateway server you must ensure [PowerShell 7](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.2) and ensure the installation of all the required modules: 
+Using your Azure Subscription create a new Azure Data Lake Storage resource, follow the steps of following link:
+
+https://docs.microsoft.com/en-us/azure/storage/blobs/create-data-lake-storage-account
+
+Enable the [Hierarchical Namespace](https://docs.microsoft.com/en-us/azure/storage/blobs/create-data-lake-storage-account#enable-the-hierarchical-namespace) when creating the storage account.
+
+![image](./Images/AzurePortal_StorageHierarchicalNamespace.png)
+
+### PowerShell Modules
+
+On the gateway server ensure [PowerShell 7](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.2) is installed and install the following required modules: 
 - [Az.Accounts](https://www.powershellgallery.com/packages/Az.Accounts)
 - [Az.Storage](https://www.powershellgallery.com/packages/Az.Storage)
 - [MicrosoftPowerBIMgmt](https://www.powershellgallery.com/packages/MicrosoftPowerBIMgmt)
 
-Open a PowerShell 7 window prompt and run the following install commands:
+To install the modules above, open a PowerShell 7 prompt and run the following commands:
 
 ```powershell
 Install-Module Az.Accounts -MinimumVersion "2.8.0" -verbose
@@ -32,19 +42,11 @@ Install-Module Az.Storage -MinimumVersion "4.6.0" -verbose
 Install-Module MicrosoftPowerBIMgmt -MinimumVersion "1.2.1077" -verbose
 ```
 
-## Azure Data Lake Storage
-
-Using your Azure Subscription create a new Azure Data Lake Storage resource, follow the steps of following link:
-
-https://docs.microsoft.com/en-us/azure/storage/blobs/create-data-lake-storage-account
-
-Dont forget to enable [Hierarchical Namespace](https://docs.microsoft.com/en-us/azure/storage/blobs/create-data-lake-storage-account#enable-the-hierarchical-namespace) when creating the storage account.
-
 ## Deploy scripts to Gateway Server
 
 On each Gateway Server you should clone/copy this repo powershell scripts into a local folder (ex: c:\PBIGTWMonitor)
 
-## Change Config.Json
+### Change Config.Json
 
 Open the [Configuration file](.\Config.json) and configure the following settings:
 
@@ -60,7 +62,7 @@ Open the [Configuration file](.\Config.json) and configure the following setting
 
   Confirm if the 'GatewayLogsPath' point to the correct path of the gateway logs - [more info](https://docs.microsoft.com/en-us/data-integration/gateway/service-gateway-log-files)
 
-  The GatewayId is discovered automatically by looking into the first lines of the gateway report file 'SystemCounterAggregationReport*.log' but you can override this by specifying the GatewayId & GatewayName on the configuration file:
+  The script automatically discovers the GatewayId and Number of Cores of the gateway and stores this information on the /metadata/gatewayproperties.json file, but its possible to override these values on the 'GatewayLogsPath' property of the configuration file:
 
   ![image](./Images/ConfigFile_PathProperty.png)
 
@@ -76,7 +78,7 @@ Open the [Configuration file](.\Config.json) and configure the following setting
 
     Root path on the storage container to where the log files will be written to
 
-## Schedule Task
+### Schedule Task
 
 Configure a Windows Schedule Task to run the script [Run.ps1](./Run.ps1) every hour/day
 

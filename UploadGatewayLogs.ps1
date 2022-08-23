@@ -116,20 +116,25 @@ try {
 
     foreach ($obj in $config.GatewayLogsPath) {
 
+        $gatewayProperties = @{                
+            GatewayObjectId = $null             
+        }
+
         if ($obj -is [PSCustomObject])
         {
             $path = $obj.Path
 
-            $gatewayProperties = @{
-                
-                GatewayObjectId = $obj.GatewayId
-                ;
-                GatewayName = $obj.GatewayName
-            }            
+            $gatewayProperties.GatewayObjectId = $obj.GatewayId
+            $gatewayProperties.GatewayName = $obj.GatewayName        
         }
         else {
             $path = $obj
+        }
 
+        # If GatewayObjectId is not specified try to find it in the logs
+
+        if (!$gatewayProperties.GatewayObjectId)
+        {
             $reportFile = Get-ChildItem -path $path -Recurse  |? {$_.Name -ilike "SystemCounterAggregationReport_*"} | Select -first 1
 
             if (!$reportFile)
@@ -138,14 +143,31 @@ try {
             }
 
             $gatewayIdFromCSV = Get-Content -path $reportFile.FullName -First 2 | ConvertFrom-Csv | Select -ExpandProperty GatewayObjectId
+            
+            $gatewayProperties.GatewayObjectId = $gatewayIdFromCSV  
 
-            $gatewayProperties = @{
-                
-                GatewayObjectId = $gatewayIdFromCSV             
+        }
+
+        # Try to get the gateway core count
+
+        if (!$gatewayProperties.NumberOfCores)
+        {    
+            try {
+                $serverCPU = (Get-ComputerInfo -Property CsProcessors).CsProcessors
+
+                $gatewayProperties.NumberOfCores = $serverCPU.NumberOfLogicalProcessors
+            }
+            catch {
+                Write-Warning "Error getting the server core count"
             }
         }
 
         $gatewayId = $gatewayProperties.GatewayObjectId
+
+        if (!$gatewayId)
+        {
+            throw "Gateway Id is not defined."
+        }
 
         $outputPathLogs = ("$($config.StorageAccountContainerRootPath)/{0:gatewayid}/logs" -f  $gatewayId)  
 

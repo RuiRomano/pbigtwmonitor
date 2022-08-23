@@ -22,6 +22,8 @@ $bindedGateways | Format-Table
 
 Write-Host "Refresh History"
 
+# https://docs.microsoft.com/en-us/rest/api/power-bi/datasets/get-refresh-history-in-group
+
 $refreshes = Invoke-PowerBIRestMethod -url "groups/$workspaceId/datasets/$datasetId/refreshes?`$top=5" -method Get | ConvertFrom-Json | select -ExpandProperty value
 
 $refreshes | Format-Table

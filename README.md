@@ -13,7 +13,7 @@ Blog Post: https://www.linkedin.com/pulse/power-bi-gateway-monitoring-troublesho
 ## Requirements
 
 - [Azure Data Lake Storage Account (ADLS Gen 2)](https://docs.microsoft.com/en-us/azure/storage/blobs/create-data-lake-storage-account) with [Hierarchical Namespace](https://docs.microsoft.com/en-us/azure/storage/blobs/create-data-lake-storage-account#enable-the-hierarchical-namespace) enabled
-- Setup [PowerShell 7](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.2) on the Gateway Server, with the following modules installed: [Az.Accounts](https://www.powershellgallery.com/packages/Az.Accounts), [Az.Storage](https://www.powershellgallery.com/packages/Az.Storage), [MicrosoftPowerBIMgmt](https://www.powershellgallery.com/packages/MicrosoftPowerBIMgmt)
+- [PowerShell 7](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.2) on the Gateway Server, with the following modules installed: [Az.Accounts](https://www.powershellgallery.com/packages/Az.Accounts), [Az.Storage](https://www.powershellgallery.com/packages/Az.Storage), [MicrosoftPowerBIMgmt](https://www.powershellgallery.com/packages/MicrosoftPowerBIMgmt)
 
 ### Azure Data Lake Storage Account (ADLS Gen 2)
 

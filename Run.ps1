@@ -1,4 +1,4 @@
-#requires -Modules Az.Accounts, Az.Storage
+#requires -Version 7 -Modules Az.Accounts, Az.Storage
 
 param(
     [string]$configFilePath = ".\Config.json"

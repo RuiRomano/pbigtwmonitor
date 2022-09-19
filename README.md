@@ -99,6 +99,12 @@ After opening the Power BI Template file (.pbit) the following parameter window 
 | LogFilters | Comma separated file names of log files to be fetched. Default: "gatewayerrors,gatewayinfo" If 'None' log files will be excluded 
 | GatewayFilters | Comma separated gateway id's. Default: All Gateways
 
+## Template from Disk
+
+Its possible to use the Power BI template directly over the gateway server log folder or export files from the [Export Logs](https://learn.microsoft.com/en-us/data-integration/gateway/service-gateway-tshoot#collect-logs-from-the-on-premises-data-gateway-app) feature.
+
+Use the [Gateway Monitor - FromDisk.pbit](Gateway%20Monitor%20-%20FromDisk.pbit) template file and set the "DataLocation" parameter to the root folder where the logs are stored.
+
 ## Logs Page
 
 ![image](./Images/PBI_LogPage.png)
@@ -118,6 +124,10 @@ After opening the Power BI Template file (.pbit) the following parameter window 
 ## Mashups Profiles Page
 
 ![image](./Images/PBI_MashupProfiles.png)
+
+## Mashups Logs Page
+
+![image](./Images/PBI_MashupLogs.png)
 
 ## Theme
 Theme Background Images here: https://alluringbi.com/gallery/

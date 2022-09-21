@@ -109,6 +109,9 @@ Use the [Gateway Monitor - FromDisk.pbit](Gateway%20Monitor%20-%20FromDisk.pbit)
 
 ![image](./Images/PBI_LogPage.png)
 
+## Gateway Profile
+![image](./Images/PBI_GatewayProfile.png)
+
 ## Queries Page
 
 ![image](./Images/PBI_QueriesPage.png)

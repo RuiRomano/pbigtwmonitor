@@ -93,7 +93,7 @@ After opening the Power BI Template file (.pbit) the following parameter window 
 
 | Parameter      | Description
 | ----------- | -------- 
-| DataLocation      | URL Path to the root folder on the Storage Account, ex: https://storage.dfs.core.windows.net/pbigatewaymonitor/raw
+| DataLocation      | URL Path to the root folder including the container name (default: '/pbigatewaymonitor/RAW'), using the Distributed File System (DFS) endpoint of the storage account, ex: https<span>://storage.<strong>dfs</strong>.core.windows.net/<strong>pbigatewaymonitor/raw</strong>
 | NumberDays | Filter to the log files to be fetched, if '10' Power BI will read only the latest 10 days of logs
 | MaxLogTextLength | Max size of text column of logs. Default: 1000
 | LogFilters | Comma separated file names of log files to be fetched. Default: "gatewayerrors,gatewayinfo" If 'None' log files will be excluded 
@@ -103,7 +103,7 @@ After opening the Power BI Template file (.pbit) the following parameter window 
 
 Its possible to use the Power BI template directly over the gateway server log folder or export files from the [Export Logs](https://learn.microsoft.com/en-us/data-integration/gateway/service-gateway-tshoot#collect-logs-from-the-on-premises-data-gateway-app) feature.
 
-Use the [Gateway Monitor - FromDisk.pbit](Gateway%20Monitor%20-%20FromDisk.pbit) template file and set the "DataLocation" parameter to the root folder where the logs are stored.
+Use the [Gateway Monitor - FromDisk.pbit](Gateway%20Monitor%20-%20FromDisk.pbit) template file and set the "DataLocation" parameter to the root folder where the logs are stored. Its possible to include logs from multiple gateways, just ensure the logs for each gateway have their own folder. Ex: c:\temp\gatewaymonitor\gateway1; c:\temp\gatewaymonitor\gateway2
 
 ## Logs Page
 

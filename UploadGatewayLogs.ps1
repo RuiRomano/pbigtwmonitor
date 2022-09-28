@@ -40,8 +40,8 @@ function ProcessLogFiles ($logFiles, $storagePath, $executionDate, $tempPath)
             # Local copy the file, because it could be blocked by Gateway
 
             Write-Host "Copying file: '$($logFile.FullName)' to '$tempPath'"
-
-            $fileOutputPath = "$tempPath\$($logFile.Name)"                
+            
+            $fileOutputPath = "$tempPath\$($storagePathTemp.Replace("/", "\"))\$($logFile.Name)"                
 
             New-Item -ItemType Directory -Path (Split-Path $fileOutputPath -Parent) -ErrorAction SilentlyContinue | Out-Null
 
@@ -51,19 +51,24 @@ function ProcessLogFiles ($logFiles, $storagePath, $executionDate, $tempPath)
             $fileOutputPath = $logFile.FullName
         }
 
-        Write-Host "Sync '$fileOutputPath' to BlobStorage"
-
-        # Send to Storage
-
-        Add-FileToBlobStorage -storageRootPath $storagePathTemp -filePath $fileOutputPath -storageAccountConnStr $config.StorageAccountConnStr -storageContainerName $config.StorageAccountContainerName        
-
-        if ($tempPath)
+        if ($config.StorageAccountConnStr)
         {
-            Write-Host "Deleting local file copy: '$fileOutputPath'"
+            Write-Host "Sync '$fileOutputPath' to BlobStorage"
 
-            # Remove the local copy 
-            
-            Remove-Item $fileOutputPath -Force
+            # Send to Storage
+
+            Add-FileToBlobStorage -storageRootPath $storagePathTemp -filePath $fileOutputPath -storageAccountConnStr $config.StorageAccountConnStr -storageContainerName $config.StorageAccountContainerName        
+
+            # If storage account is configured and upload is done the file is deleted from the local file system
+
+            if ($tempPath -and $fileOutputPath)
+            {
+                Write-Host "Deleting local file copy: '$fileOutputPath'"
+    
+                # Remove the local copy 
+                
+                Remove-Item $fileOutputPath -Force
+            }
         }
     }
 }

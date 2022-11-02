@@ -200,7 +200,7 @@ try {
 
         # Gateway Reports
 
-        $logFiles = @(Get-ChildItem -File -Path "$path\report\*.log" -ErrorAction SilentlyContinue)
+        $logFiles = @(Get-ChildItem -File -Path "$path\*Report_*.log" -Recurse -ErrorAction SilentlyContinue)
 
         Write-Host "Gateway Report log count: $($logFiles.Count)"
 

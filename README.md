@@ -85,6 +85,8 @@ Configure a Windows Schedule Task to run the script [Run.ps1](./Run.ps1) every h
 
 # Power BI Template
 
+After loading the data to the data lake you can open the [Power BI template](./Gateway%20Monitor%20-%20FromLake.pbit) and refresh to get a report with insights on the gateways.
+
 ## Template Parameters
 
 After opening the Power BI Template file (.pbit) the following parameter window will popup:
@@ -94,7 +96,8 @@ After opening the Power BI Template file (.pbit) the following parameter window 
 | Parameter      | Description
 | ----------- | -------- 
 | DataLocation      | URL Path to the root folder including the container name (default: '/pbigatewaymonitor/RAW'), using the Distributed File System (DFS) endpoint of the storage account, ex: https<span>://storage.<strong>dfs</strong>.core.windows.net/<strong>pbigatewaymonitor/raw</strong>
-| NumberDays | Filter to the log files to be fetched, if '10' Power BI will read only the latest 10 days of logs
+| NumberDays | Filter to the log files to be fetched, if '10' Power BI will read only the latest 10 days of logs/queries/counters Default: null (all days)
+| SinceDate | Only read log/query files since the specified date. This parameter overrides 'NumberDays' Default: null (all days)
 | MaxLogTextLength | Max size of text column of logs. Default: 1000
 | LogFilters | Comma separated file names of log files to be fetched. Default: "gatewayerrors,gatewayinfo" If 'None' log files will be excluded 
 | GatewayFilters | Comma separated gateway id's. Default: All Gateways
@@ -109,12 +112,12 @@ Use the [Gateway Monitor - FromDisk.pbit](Gateway%20Monitor%20-%20FromDisk.pbit)
 
 ![image](./Images/PBI_LogPage.png)
 
-## Gateway Profile
-![image](./Images/PBI_GatewayProfile.png)
-
 ## Queries Page
 
 ![image](./Images/PBI_QueriesPage.png)
+
+## Gateway Profile
+![image](./Images/PBI_GatewayProfile.png)
 
 ## Counters Page
 

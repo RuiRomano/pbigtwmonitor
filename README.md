@@ -6,6 +6,8 @@ This project aim to help organizations with multiple gateway clusters centralize
 
 ![image](./Images/Architecture.png)
 
+**To quickly analyze the logs of gateways you dont need to run/deploy the powershell scripts** its possible to use the [disk Power BI template](./Gateway%20Monitor%20-%20FromDisk.pbit) and directly point to the exported gateway logs. The powershell & central storage is only required if you want to keep an fully automated gateway monitoring solution with history log data retention.
+
 Blog Post: https://www.linkedin.com/pulse/power-bi-gateway-monitoring-troubleshooting-solution-rui-romano/ 
 
 # Setup
@@ -85,28 +87,27 @@ Configure a Windows Schedule Task to run the script [Run.ps1](./Run.ps1) every h
 
 # Power BI Template
 
-After loading the data to the data lake you can open the [Power BI template](./Gateway%20Monitor%20-%20FromLake.pbit) and refresh to get a report with insights on the gateways.
+There are two Power BI templates available:
+
+- [Lake Template](./Gateway%20Monitor%20-%20FromLake.pbit) - When gateway log data resides in the ADLS Gen 2 lake
+- [Disk Template](./Gateway%20Monitor%20-%20FromDisk.pbit) - When gateway log data reside in disk, useful to analyze the logs directly from the gateway server or [gateway log export](https://learn.microsoft.com/en-us/data-integration/gateway/service-gateway-tshoot#collect-logs-from-the-on-premises-data-gateway-app). You dont need to deploy the powershell scripts to use this template, only need to have access to gateway logs.
+
 
 ## Template Parameters
 
 After opening the Power BI Template file (.pbit) the following parameter window will popup:
 
 ![image](./Images/PBI_TemplateParams.png)
+![image](./Images/PBI_TemplateParamsDisk.png)
 
 | Parameter      | Description
 | ----------- | -------- 
-| DataLocation      | URL Path to the root folder including the container name (default: '/pbigatewaymonitor/RAW'), using the Distributed File System (DFS) endpoint of the storage account, ex: https<span>://storage.<strong>dfs</strong>.core.windows.net/<strong>pbigatewaymonitor/raw</strong>
+| DataLocation      | URL Path to the root folder including the container name (default: '/pbigatewaymonitor/RAW'), using the Distributed File System (DFS) endpoint of the storage account, ex: https<span>://storage.<strong>dfs</strong>.core.windows.net/<strong>pbigatewaymonitor/raw</strong>; Or the path to the disk location with logs if the disk template is used
 | NumberDays | Filter to the log files to be fetched, if '10' Power BI will read only the latest 10 days of logs/queries/counters Default: null (all days)
 | SinceDate | Only read log/query files since the specified date. This parameter overrides 'NumberDays' Default: null (all days)
 | MaxLogTextLength | Max size of text column of logs. Default: 1000
 | LogFilters | Comma separated file names of log files to be fetched. Default: "gatewayerrors,gatewayinfo" If 'None' log files will be excluded 
 | GatewayFilters | Comma separated gateway id's. Default: All Gateways
-
-## Template from Disk
-
-Its possible to use the Power BI template directly over the gateway server log folder or export files from the [Export Logs](https://learn.microsoft.com/en-us/data-integration/gateway/service-gateway-tshoot#collect-logs-from-the-on-premises-data-gateway-app) feature.
-
-Use the [Gateway Monitor - FromDisk.pbit](Gateway%20Monitor%20-%20FromDisk.pbit) template file and set the "DataLocation" parameter to the root folder where the logs are stored. Its possible to include logs from multiple gateways, just ensure the logs for each gateway have their own folder. Ex: c:\temp\gatewaymonitor\gateway1; c:\temp\gatewaymonitor\gateway2
 
 ## Logs Page
 

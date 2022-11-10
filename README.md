@@ -49,7 +49,9 @@ On each Gateway Server you should clone/copy this repo powershell scripts into a
 
 ### Change Config.Json
 
-Open the [Configuration file](.\Config.json) and configure the following settings:
+ ![image](./Images/ConfigFile.png)
+
+Open the [Configuration file](./Config.json) and configure the following settings:
 
 - StorageAccountConnStr
   

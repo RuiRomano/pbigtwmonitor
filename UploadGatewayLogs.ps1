@@ -131,6 +131,7 @@ try {
 
             $gatewayProperties.GatewayObjectId = $obj.GatewayId
             $gatewayProperties.GatewayName = $obj.GatewayName        
+            $gatewayProperties.GatewayCluster = $obj.GatewayCluster
         }
         else {
             $path = $obj
@@ -180,9 +181,11 @@ try {
     
         $outputPathReports = ("$($config.StorageAccountContainerRootPath)/{0:gatewayid}/reports" -f $gatewayId)
 
-        # GatewayProperties json file 
+        # GatewayProperties json file         
 
-        $gatewayMetadataFilePath = "$localOutputPath\GatewayProperties.json"
+        $gatewayMetadataFilePath = "$localOutputPath\$($config.StorageAccountContainerRootPath)\$gatewayId\metadata\GatewayProperties.json"
+
+        New-Item -ItemType Directory -Path (Split-Path $gatewayMetadataFilePath -Parent) -ErrorAction SilentlyContinue | Out-Null
 
         ConvertTo-Json $gatewayProperties | Out-File $gatewayMetadataFilePath -force -Encoding utf8
 

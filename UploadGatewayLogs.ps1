@@ -141,11 +141,11 @@ try {
 
         if (!$gatewayProperties.GatewayObjectId)
         {
-            $reportFile = Get-ChildItem -path $path -Recurse  |? {$_.Name -ilike "SystemCounterAggregationReport_*"} | Select -first 1
+            $reportFile = Get-ChildItem -path $path -Recurse  |? {$_.Name -ilike "*Report_*.log"} | Sort-Object Length | Select -first 1
 
             if (!$reportFile)
             {
-                throw "Cannot find a Gateway report file 'SystemCounterAggregationReport_*' to infer the GatewayId, please configure the config.json to configure the GatewayId"
+                throw "Cannot find any report ('*Report_*.log') file on '$path' to infer the GatewayId. Please ensure there is at least one report. If its a newly installed Gateway you may need to run a refresh and wait a couple of minutes."
             }
 
             $gatewayIdFromCSV = Get-Content -path $reportFile.FullName -First 2 | ConvertFrom-Csv | Select -ExpandProperty GatewayObjectId

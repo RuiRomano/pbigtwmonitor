@@ -125,16 +125,33 @@ try {
             GatewayObjectId = $null             
         }
 
+        $gatewayClusters = $null
+
+        # Manual metadata
+
         if ($obj -is [PSCustomObject])
         {
             $path = $obj.Path
-
+            
             $gatewayProperties.GatewayObjectId = $obj.GatewayId
             $gatewayProperties.GatewayName = $obj.GatewayName        
             $gatewayProperties.GatewayCluster = $obj.GatewayCluster
+            $gatewayProperties.Server = $obj.Server
+            $gatewayProperties.Version = $obj.Version            
+            $gatewayProperties.NumberOfCores = $obj.NumberOfCores
         }
         else {
             $path = $obj
+
+            if (Test-Path "$path\GatewayProperties.txt")
+            {
+                $gatewayProperties = Get-Content "$path\GatewayProperties.txt" | ConvertFrom-Json
+            }
+
+            if (Test-Path "$path\GatewayClusters.txt")
+            {
+                $gatewayClusters = Get-Content "$path\GatewayClusters.txt" | ConvertFrom-Json
+            }
         }
 
         # If GatewayObjectId is not specified try to find it in the logs
@@ -156,7 +173,7 @@ try {
 
         # Try to get the gateway core count
 
-        if (!$gatewayProperties.NumberOfCores)
+        if (!$gatewayProperties.NumberOfCores -and !$gatewayProperties.CpuRelatedInfo)
         {    
             try {
                 $serverCPU = (Get-ComputerInfo -Property CsProcessors).CsProcessors
@@ -187,9 +204,22 @@ try {
 
         New-Item -ItemType Directory -Path (Split-Path $gatewayMetadataFilePath -Parent) -ErrorAction SilentlyContinue | Out-Null
 
-        ConvertTo-Json $gatewayProperties | Out-File $gatewayMetadataFilePath -force -Encoding utf8
+        ConvertTo-Json $gatewayProperties -Depth 5 | Out-File $gatewayMetadataFilePath -force -Encoding utf8
 
         ProcessLogFiles -logFiles (Get-ChildItem $gatewayMetadataFilePath) -storagePath $outputPathMetadata   
+        
+        # GatewayClusters json file  
+        
+        if ($gatewayClusters)
+        {
+            $gatewayClustersFilePath = "$localOutputPath\$($config.StorageAccountContainerRootPath)\$gatewayId\metadata\GatewayClusters.json"
+
+            New-Item -ItemType Directory -Path (Split-Path $gatewayClustersFilePath -Parent) -ErrorAction SilentlyContinue | Out-Null
+
+            ConvertTo-Json $gatewayClusters -Depth 5 | Out-File $gatewayClustersFilePath -force -Encoding utf8
+
+            ProcessLogFiles -logFiles (Get-ChildItem $gatewayClustersFilePath) -storagePath $outputPathMetadata   
+        }
         
         # Gateway Logs
 

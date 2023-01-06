@@ -1,9 +1,11 @@
 ﻿#Requires -Modules @{ ModuleName="MicrosoftPowerBIMgmt"; ModuleVersion="1.2.1026" }
 
 param(
-    $workspaceId = "ff9f6b54-83e8-4aa5-901b-a7675e001c77"
-    ,
-    $datasetId = "4aee5203-4d36-4b2e-87b4-904a7bd38016"
+    $datasets = @(
+        @{workspaceId = "ff9f6b54-83e8-4aa5-901b-a7675e001c77";datasetId = "4aee5203-4d36-4b2e-87b4-904a7bd38016"}
+        ,
+        @{workspaceId = "7331d174-e08f-4802-acba-898b8cecbc75";datasetId = "ecb5768c-3057-433a-91c0-c56bece634ae"}
+    )
 )
 
 $ErrorActionPreference = "Stop"
@@ -14,17 +16,21 @@ $currentPath = (Split-Path $MyInvocation.MyCommand.Definition -Parent)
 
 Connect-PowerBIServiceAccount
 
-Write-Host "Gateway Info"
+foreach ($dataset in $datasets)
+{    
+    Write-Host "Workspace: $($dataset.workspaceId); Dataset: $($dataset.datasetId)"
+    
+    Write-Host "Gateway Info"
 
-$bindedGateways = Invoke-PowerBIRestMethod -url "groups/$workspaceId/datasets/$datasetId/Default.GetBoundGatewayDatasources" -method Get | ConvertFrom-Json | select -ExpandProperty value
+    $bindedGateways = Invoke-PowerBIRestMethod -url "groups/$($dataset.workspaceId)/datasets/$($dataset.datasetId)/Default.GetBoundGatewayDatasources" -method Get | ConvertFrom-Json | select -ExpandProperty value
 
-$bindedGateways | Format-Table
+    $bindedGateways | Format-Table
 
-Write-Host "Refresh History"
+    Write-Host "Refresh History"
 
-# https://docs.microsoft.com/en-us/rest/api/power-bi/datasets/get-refresh-history-in-group
+    # https://docs.microsoft.com/en-us/rest/api/power-bi/datasets/get-refresh-history-in-group
 
-$refreshes = Invoke-PowerBIRestMethod -url "groups/$workspaceId/datasets/$datasetId/refreshes?`$top=5" -method Get | ConvertFrom-Json | select -ExpandProperty value
+    $refreshes = Invoke-PowerBIRestMethod -url "groups/$($dataset.workspaceId)/datasets/$($dataset.datasetId)/refreshes?`$top=5" -method Get | ConvertFrom-Json | select -ExpandProperty value
 
-$refreshes | Format-Table
-
+    $refreshes | Format-Table
+}

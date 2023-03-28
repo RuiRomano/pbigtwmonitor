@@ -35,7 +35,9 @@ else {
 }
 
 try {
-
+    if(!$config.StorageAccountConnStr){
+        Add-AzAccount -identity 
+    }
     foreach ($scriptToRun in $scriptsToRun)
     {        
         try {

@@ -24,7 +24,7 @@ function Add-FolderToBlobStorage {
         $ctx = New-AzStorageContext -ConnectionString $storageAccountConnStr
     }
     else {
-        $ctx = New-AzStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $storageAccountKey
+        $ctx = New-AzStorageContext -StorageAccountName $storageAccountName -UseConnectedAccount
     }
     
     if ($ensureContainer) {
@@ -69,12 +69,12 @@ function Add-FileToBlobStorage {
         $ensureContainer = $true
     )
         
-    if ($storageAccountConnStr) {
-        $ctx = New-AzStorageContext -ConnectionString $storageAccountConnStr
-    }
-    else {
-        $ctx = New-AzStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $storageAccountKey
-    }
+   if ($storageAccountConnStr) {
+       $ctx = New-AzStorageContext -ConnectionString $storageAccountConnStr
+   }
+   else {
+        $ctx = New-AzStorageContext -StorageAccountName $storageAccountName -UseConnectedAccount
+   }
     
     if ($ensureContainer) {                
         New-AzStorageContainer -Context $ctx -Name $storageContainerName -Permission Off -ErrorAction SilentlyContinue | Out-Null

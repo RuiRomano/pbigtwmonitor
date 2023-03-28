@@ -51,24 +51,31 @@ function ProcessLogFiles ($logFiles, $storagePath, $executionDate, $tempPath)
             $fileOutputPath = $logFile.FullName
         }
 
-        if ($config.StorageAccountConnStr)
-        {
+        
             Write-Host "Sync '$fileOutputPath' to BlobStorage"
 
+        if ($config.StorageAccountConnStr)
+        {
             # Send to Storage
 
-            Add-FileToBlobStorage -storageRootPath $storagePathTemp -filePath $fileOutputPath -storageAccountConnStr $config.StorageAccountConnStr -storageContainerName $config.StorageAccountContainerName        
+            Add-FileToBlobStorage -storageRootPath $storagePathTemp -filePath $fileOutputPath -storageAccountConnStr $config.StorageAccountConnStr -storageContainerName $config.StorageAccountContainerName
 
             # If storage account is configured and upload is done the file is deleted from the local file system
+        }
+        else{
+            # Send to Storage
+            
+            Add-FileToBlobStorage -storageRootPath $storagePathTemp -filePath $fileOutputPath -storageAccountName $config.StorageAccountName -storageContainerName $config.StorageAccountContainerName        
+           
+            # If storage account is configured and upload is done the file is deleted from the local file system
+        }
+        if ($tempPath -and $fileOutputPath)
+        {
+            Write-Host "Deleting local file copy: '$fileOutputPath'"
 
-            if ($tempPath -and $fileOutputPath)
-            {
-                Write-Host "Deleting local file copy: '$fileOutputPath'"
-    
-                # Remove the local copy 
-                
-                Remove-Item $fileOutputPath -Force
-            }
+            # Remove the local copy 
+            
+            Remove-Item $fileOutputPath -Force
         }
     }
 }

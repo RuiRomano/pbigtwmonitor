@@ -36,7 +36,12 @@ else {
 
 try {
     if(!$config.StorageAccountConnStr){
-        Add-AzAccount -identity 
+        if(!$config.UserManagedIdentityId){
+            Add-AzAccount -identity 
+        }
+        else {
+            Add-AzAccount -identity -AccountId $config.UserManagedIdentityId
+        }
     }
     foreach ($scriptToRun in $scriptsToRun)
     {        

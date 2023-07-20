@@ -1,0 +1,178 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 57.333332061767578
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 2089.0625,
+            "y": 68.75
+          },
+          "nodeIndex": "Gateways",
+          "size": {
+            "height": 475.76478471564224,
+            "width": 234
+          },
+          "zIndex": 13
+        },
+        {
+          "location": {
+            "x": 690.156512809311,
+            "y": 519.051840964009
+          },
+          "nodeIndex": "Calendar",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 9
+        },
+        {
+          "location": {
+            "x": 795.91117574293071,
+            "y": 949.61631660819069
+          },
+          "nodeIndex": "Time",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 10
+        },
+        {
+          "location": {
+            "x": 1189.28125,
+            "y": 0
+          },
+          "nodeIndex": "Mashup Container Profile",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 8
+        },
+        {
+          "location": {
+            "x": 1705.5539727712071,
+            "y": 923.54118611840465
+          },
+          "nodeIndex": "Mashup Logs",
+          "size": {
+            "height": 407.53836833918081,
+            "width": 221.5
+          },
+          "zIndex": 11
+        },
+        {
+          "location": {
+            "x": 2032.3325764192141,
+            "y": 546.01781659388655
+          },
+          "nodeIndex": "Param - Counters Measure",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 2
+        },
+        {
+          "location": {
+            "x": 1991.0628820960692,
+            "y": 334.130305676856
+          },
+          "nodeIndex": "Param - Counters Axis",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 3
+        },
+        {
+          "location": {
+            "x": 1095.6215743302585,
+            "y": 412.38623653198272
+          },
+          "nodeIndex": "Logs",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 4
+        },
+        {
+          "location": {
+            "x": 1213.5278858092022,
+            "y": 882.47168033683238
+          },
+          "nodeIndex": "Queries",
+          "size": {
+            "height": 414.37987150491404,
+            "width": 234
+          },
+          "zIndex": 12
+        },
+        {
+          "location": {
+            "x": 267.66874999999982,
+            "y": 826.5625
+          },
+          "nodeIndex": "System Counters",
+          "size": {
+            "height": 694.4375,
+            "width": 334
+          },
+          "zIndex": 5
+        },
+        {
+          "location": {
+            "x": 1574.0634899172844,
+            "y": 493.96703716512934
+          },
+          "nodeIndex": "Requests",
+          "size": {
+            "height": 256.25,
+            "width": 234
+          },
+          "zIndex": 6
+        },
+        {
+          "location": {
+            "x": 967.43472032742193,
+            "y": 1454.1439290586634
+          },
+          "nodeIndex": "Queries - Datasources",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 7
+        },
+        {
+          "location": {
+            "x": 1547.8257189305423,
+            "y": 72.699070871767319
+          },
+          "nodeIndex": "LogsArtifactTrace",
+          "size": {
+            "height": 272,
+            "width": 234
+          },
+          "zIndex": 1
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 73.201290315793159,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

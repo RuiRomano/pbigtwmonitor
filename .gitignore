@@ -52,3 +52,6 @@ gateway-monitoring-solution-backgrounds-1.png
 .gitignore
 gateway-monitoring-solution-backgrounds-1.pptx
 Gateway Monitor - Parameters.txt
+
+**/.pbi/localSettings.json
+**/.pbi/cache.abf

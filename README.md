@@ -1,3 +1,11 @@
+⚠️ **Deprecation Notice**
+
+This repository is no longer actively maintained. I recommend considering on the following solutions, which offers improved functionality and ongoing support:
+
+- [Fabric Platform Monitoring](https://github.com/microsoft/fabric-toolbox/tree/main/monitoring/fabric-platform-monitoring)
+
+---
+
 This project aim to help organizations with multiple gateway clusters centralize all their gateway logs and reports into a central storage (ADLS Gen 2) and allow easy and quick exploration of those logs either by:
 
 - Easily access all the gateway logs without having to remote access to the gateway server
